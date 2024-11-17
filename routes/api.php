@@ -13,6 +13,9 @@ use App\Http\Controllers\API\LinkedIn\Controllers\PostsController;
 use App\Http\Controllers\API\LinkedIn\Controllers\EngagementController;
 use App\Http\Controllers\API\LinkedIn\Controllers\AnalyticsController;
 use App\Http\Controllers\API\Linkedln\BaseLinkedInController;
+use App\Http\Controllers\Auth\InstagramAuthController;
+use App\Http\Controllers\Instagram\InstagramMediaController;
+use App\Http\Controllers\Instagram\InstagramPostController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -78,3 +81,57 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('profiles/{profileId}/trends', 'AnalyticsController@trends');
     });
 });
+
+
+
+// Instagram Authentication Routes
+Route::prefix('auth/instagram')->group(function () {
+    Route::get('connect', [InstagramAuthController::class, 'redirectToInstagram'])->name('instagram.connect');
+    Route::get('callback', [InstagramAuthController::class, 'handleCallback'])->name('instagram.callback');
+    Route::post('disconnect', [InstagramAuthController::class, 'disconnect'])->name('instagram.disconnect');
+});
+
+// Protected Instagram Routes
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::prefix('instagram')->group(function () {
+        // Account Status
+        Route::get('status', [InstagramAuthController::class, 'getStatus'])
+            ->name('instagram.status');
+
+        // Media Management
+        Route::prefix('media')->group(function () {
+            Route::get('/', [InstagramMediaController::class, 'getUserMedia'])
+                ->name('instagram.media.list');
+            Route::get('{mediaId}', [InstagramMediaController::class, 'getMediaDetails'])
+                ->name('instagram.media.details');
+        });
+
+        // Posting Routes
+        Route::prefix('post')->group(function () {
+            // Regular Posts
+            Route::post('/', [InstagramPostController::class, 'createPost'])
+                ->name('instagram.post.create');
+            
+            // Stories
+            Route::post('story', [InstagramPostController::class, 'createStory'])
+                ->name('instagram.story.create');
+            
+            // Reels
+            Route::post('reel', [InstagramPostController::class, 'createReel'])
+                ->name('instagram.reel.create');
+            
+            // Carousel Posts
+            Route::post('carousel', [InstagramPostController::class, 'createCarousel'])
+                ->name('instagram.carousel.create');
+        });
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
+| API Health Check
+|--------------------------------------------------------------------------
+*/
+Route::get('health', function () {
+    return response()->json(['status' => 'ok']);
+})->name('api.health');
