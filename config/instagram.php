@@ -37,4 +37,25 @@ return [
         'token_refresh' => 3600, // Cache token refresh attempts for 1 hour
         'media_timeout' => 300,  // Cache media requests for 5 minutes
     ],
+
+    'ffmpeg' => [
+        'path' => env('FFMPEG_PATH', '/usr/bin/ffmpeg'),
+        'ffprobe_path' => env('FFPROBE_PATH', '/usr/bin/ffprobe'),
+        'timeout' => 3600,
+        'video' => [
+            'max_duration' => [
+                'VIDEO' => 60,
+                'REELS' => 90,
+                'STORY' => 15,
+            ],
+            'dimensions' => [
+                'width' => 1080,
+                'height' => 1920,
+            ],
+            'codecs' => [
+                'video' => 'h264',
+                'audio' => 'aac',
+            ],
+        ],
+    ],
 ];
